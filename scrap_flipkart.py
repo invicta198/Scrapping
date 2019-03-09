@@ -4,37 +4,52 @@ import requests
 
 
 def first_method(product_details):
+    for i in productDetail:
+        data=i.findAll("div", {"class":"col col-7-12"})
+        for j in data:
+            name=j.div
+            print(name.text)                                #PRINTING NAME OF EACH PRODUCT FOUND 
+            
+            try:
+                rating=j.find("div", {"class":"hGSR34"})
+                print(rating.text)                          #PRINTING RATING OF EACH PRODUCT FOUND
+            except:
+                print("No reviews")
 
-    for product_detail in product_details:
-
-        data = product_detail.findAll("div", {"class":"col col-7-12"})
-
-        for datum in data:
-            name = datum.div
-            print(name.text)  # PRINTING NAME OF EACH PRODUCT FOUND
-
-            rating = datum.find("div", {"class":"hGSR34"})
-            print(rating.text)  # PRINTING RATING OF EACH PRODUCT FOUND
-
-            detail = datum.findAll("li", {"class":"tVe95H"})
-            for k in detail:
+            details=j.findAll("li", {"class":"tVe95H"})     #PRINTING DETAILS OF EACH PRODUCT FOUND
+            for k in details:
                 print(k.text)
-
+                
             print("\n")
 
 
 def second_method(content):
-    product_line = content.findAll("div", {"class":"_3O0U0u"})
+    productLine=page.findAll("div", {"class":"_3O0U0u"})
+    print(len(productLine))
+    for i in productLine:
+        for j in i:
+            productName=j.div.find("a", {"class":"_2cLu-l"})['title']
+            print (productName)         #PRINTING NAME OF EACH PRODUCT FOUND
+            
+            try:
+                rating=j.div.find("div", {"class":"niH0FQ _36Fcw_"}).text
+                print(rating)           #PRINTING RATING OF EACH PRODUCT FOUND
+            except:
+                print("No reviews")
 
-    print(len(product_line))
+            try:
+                details=j.div.find("a", {"class":"_1Vfi6u"}).text
+                print(details)          #PRINTING DETAILS OF EACH PRODUCT FOUND
+            except:
+                print("No Other Detail")
 
-    # This shortcut save I/O Read as I/O is done all at once.
-    product = [j.text for i in product_line for j in i]
-    print(product)
+            print ("\n")
+        print ("********************")
 
 
 if __name__ == '__main__':
     product_name = input("ENTER PRODUCT : ").strip()
+    product_name= product_name.replace(" ", "%20")
     my_url = "https://www.flipkart.com/search?q={}".format(product_name)
     html = None
 
@@ -47,7 +62,7 @@ if __name__ == '__main__':
             html = response.content.decode()
 
         page = bs4.BeautifulSoup(html, "html.parser")
-        print(page.prettify())
+        #print(page.prettify())
 
         details = page.find_all("div", {"class": "_1-2Iqu row"})
 
