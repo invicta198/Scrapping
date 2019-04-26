@@ -1,20 +1,34 @@
 import bs4
 import requests
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import urllib
+import click
 import time
 
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
 def display_data(Products):
+	for i in Products:
+		
+		try:
+			productName=i.find("span", {"class":"a-size-base-plus a-color-base a-text-normal"}).text
+		except:
+			productName=i.find("span", {"class":"a-size-medium a-color-base a-text-normal"}).text
+		rating=i.find("span", {"class":"a-icon-alt"}).text
+		totalVotes=i.find("span", {"class":"a-size-base"}).text
+		price1=i.find("span", {"class":"a-price-whole"}).text
+		price2=i.find("span", {"class":"a-price-fraction"}).text
 
-	for i in allProducts:
-		detailProduct=i.find("div", {"class": "sg-col-inner"})
-		print(detailProduct.text)
-		print("********************") 
+		print("Product : {}".format(productName))
+		print("Rating : {}".format(rating))
+		print("Toatl Votes : {}".format(totalVotes))
+		print("Price : ${}.{}".format(price1, price2))
+		print("********************")
 
-	print(driver.title)
 
-if __name__ == '__main__':
+@click.command()
+@click.option('--product', prompt="ENTER PRODUCT ", help='Name of Item you Wish to Search')
+def startTask(product):
+	product=product.strip()
 	
 	driver=webdriver.Chrome(executable_path="E:\chromedriver.exe")
 	my_url = "https://www.amazon.com"
@@ -23,7 +37,6 @@ if __name__ == '__main__':
 	driver.maximize_window()
 	time.sleep(2)
 	
-	product = input("ENTER PRODUCT : ").strip()
 	webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
 	query=driver.find_element_by_id("twotabsearchtextbox")
 	
@@ -45,17 +58,13 @@ if __name__ == '__main__':
 			html = response.content.decode()
 
 		page=bs4.BeautifulSoup(html, "html.parser")
-		allProducts=page.find("div", {"class": "s-result-list sg-row"})
+		Products=page.find_all("div", {"class": "s-result-list sg-row"})
 
-		display_data(allProducts)
+		print("Total Products : {}".format(len(Products)))
+		display_data(Products)
 
 	except Exception as e:
 		print("Error Occurred {}".format(e))
 
-	#html = urllib.request.urlopen(my_url).read()					#HTTP Error 503: Service Unavailable
-	#print(driver.current_url)
-
-'''		div id = title_feature_div
-		div id = averageCustomerReviews_feature_div
-		div id = desktop_unifiedPrice
-		div id = featurebullets_feature_div '''
+if __name__ == '__main__':
+    startTask()
