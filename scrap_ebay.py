@@ -1,12 +1,12 @@
 import bs4
 import requests
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import urllib
+import click
 import time
 
-def display_data(Products):
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
+def display_data(Products):
 	for i in Products:
 		title=i.find("h3", {"class": "s-item__title"})
 		print(title.text)
@@ -16,18 +16,17 @@ def display_data(Products):
 
 		print("********************") 
 
-	print(driver.title)
-
-if __name__ == '__main__':
-	
+@click.command()
+@click.option('--product', prompt="ENTER PRODUCT ", help='Name of Item you Wish to Search')
+def startTask(product):
+	product=product.strip()
 	driver=webdriver.Chrome(executable_path="E:\chromedriver.exe")
-	my_url = "https://www.ebay.com"
+	my_url="https://www.ebay.com"
 	driver.get(my_url)
 
 	driver.maximize_window()
 	time.sleep(2)
 	
-	product = input("ENTER PRODUCT : ").strip()
 	webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
 	query=driver.find_element_by_id("gh-ac")
 	
@@ -51,8 +50,11 @@ if __name__ == '__main__':
 		page=bs4.BeautifulSoup(html, "html.parser")
 		allProducts=page.find_all("div", {"class": "s-item__wrapper clearfix"})
 
-		print(len(allProducts))
-		#display_data(allProducts)
+		print("Total Products : {}".format(len(allProducts)))
+		display_data(allProducts)
 
 	except Exception as e:
 		print("Error Occurred {}".format(e))
+
+if __name__ == '__main__':
+    startTask()
